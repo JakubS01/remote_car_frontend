@@ -41,6 +41,7 @@ body {
   margin-right: 30px;
   opacity: 0.75;
   color: whitesmoke;
+  cursor: pointer;
 }
 
 .settings-content {

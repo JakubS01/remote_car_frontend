@@ -1,5 +1,6 @@
 import "../CSS.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const CAR_STATUS = {
   AVAILABLE: 0,
@@ -38,6 +39,7 @@ const Admin = () => {
   const [carStatus, setCarStatus] = useState(CAR_STATUS.AVAILABLE);
   const [carPicture, setCarPicture] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
+  const navigate = useNavigate();
 
   const handleCarPictureChange = (event) => {
     setCarPicture(event.target.files[0]);
@@ -197,8 +199,17 @@ const Admin = () => {
   return (
     <div>
       <div class="header">
-        <h2>CAR STREAM</h2>
-        <h1>Hi Admin</h1>
+      <div className="bar">
+        <div className="text_bar">Car stream</div>
+        <button
+            class="button"
+            style={{marginLeft: "auto", marginRight: "20px"}}
+            onClick={() => navigate("/", { replace: true })}
+          >
+            Main menu
+          </button>
+      </div>
+      <h1>Hi Admin</h1>
       </div>
 
       <div id="ChangeModal" class="modal">

@@ -1,6 +1,8 @@
 import "../CSS.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCog } from "@fortawesome/free-solid-svg-icons";
 
 export class User {
   constructor(name, email, password) {
@@ -84,6 +86,7 @@ const LogIn = () => {
 
   return (
     <div>
+      
       <div id="RegisterModal" class="modal">
         <div class="modal-content">
           <div class="temp">
@@ -143,9 +146,18 @@ const LogIn = () => {
       </div>
 
       <div>
-        <div class="header">
-          <h2>CAR STREAM</h2>
-        </div>
+      <div class="header">
+      <div className="bar">
+        <div className="text_bar">Car stream</div>
+        <button
+            class="button"
+            style={{marginLeft: "auto", marginRight: "20px"}}
+            onClick={() => navigate("/", { replace: true })}
+          >
+            Main menu
+          </button>
+      </div>
+      </div>
         <h1>Login or register</h1>
         <td>
           <label htmlFor="email">Email:</label>
@@ -184,7 +196,7 @@ const LogIn = () => {
         <div>
           <button
             class="button"
-            c
+            onClick={() => navigate("/choose_car", { replace: true })}
           >
             Sign In
           </button>

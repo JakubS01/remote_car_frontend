@@ -49,7 +49,16 @@ const ChooseCar = () => {
   return (
     <div>
       <div class="header">
-        <h2>CAR STREAM</h2>
+      <div className="bar">
+        <div className="text_bar">Car stream</div>
+        <button
+            class="button"
+            style={{marginLeft: "auto", marginRight: "20px"}}
+            onClick={() => navigate("/login", { replace: true })}
+          >
+            Log out
+          </button>
+      </div>
       </div>
 
       {cars.length === 0 ? (
@@ -88,6 +97,7 @@ const ChooseCar = () => {
         >
           Play
         </button>
+        
       </div>
     </div>
   );

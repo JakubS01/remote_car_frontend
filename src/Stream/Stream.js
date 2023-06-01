@@ -62,6 +62,13 @@ function Stream() {
     <div className="Stream">
       <div className="bar">
         <div className="text_bar">Car stream</div>
+        <button
+            class="button"
+            style={{marginLeft: "auto", marginRight: "20px", opacity: "0.75"}}
+            onClick={() => navigate("/choose_car", { replace: true })}
+          >
+            Disconnect
+          </button>
         <FontAwesomeIcon
           icon={faCog}
           className="gear-icon"
