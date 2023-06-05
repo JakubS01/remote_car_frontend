@@ -1,7 +1,7 @@
 import "../CSS.css";
-import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "./Api.js";
 
 export const CAR_STATUS = {
   AVAILABLE: 0,
@@ -19,26 +19,7 @@ export class Car {
 }
 
 const ChooseCar = () => {
-  const getCars = async () => {
-    const carsList = null;
-    fetch("/car_admin", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => (carsList = data));
-    return carsList;
-  };
-
-  const navigate = useNavigate();
-
-  const handlePlay = () => {
-    navigate("/stream", { replace: true })
-  };
-
-  const carsList = getCars();
-
-  //const [cars, setCars] = useState(carsList);
-  const [cars, setCars] = useState([
-    { Name: "Maszyna", MaxCell: "12", Status: "1" }
-  ]);
+  const [cars, setCars] = useState([]);
   const [carName, setCarName] = useState("");
   const [carIp, setCarIp] = useState("");
   const [carMaxCell, setCarMaxCell] = useState("");
@@ -46,19 +27,32 @@ const ChooseCar = () => {
   const [carPicture, setCarPicture] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let tmp = API.GetCars();
+    if (tmp === null) {
+      alert("Error");
+    } else {
+      setCars(tmp);
+    }
+  }, []);
+
   return (
     <div>
       <div class="header">
+        <h2>CAR STREAM</h2>
+      </div>
+
       <div className="bar">
         <div className="text_bar">Car stream</div>
         <button
-            class="button"
-            style={{marginLeft: "auto", marginRight: "20px"}}
-            onClick={() => navigate("/login", { replace: true })}
-          >
-            Log out
-          </button>
-      </div>
+          class="button"
+          style={{ marginLeft: "auto", marginRight: "20px" }}
+          onClick={() => navigate("/login", { replace: true })}
+        >
+          Log out
+        </button>
       </div>
 
       {cars.length === 0 ? (
@@ -73,10 +67,7 @@ const ChooseCar = () => {
           {cars.map((car) => (
             <tr>
               <td>
-                <button
-                  class="no-button"
-                  // onClick={() => }
-                >
+                <button class="button" onClick={handlePlay}>
                   {car.Name}
                 </button>
               </td>
@@ -90,15 +81,6 @@ const ChooseCar = () => {
           ))}
         </table>
       )}
-      <div>
-        <button
-          class="button"
-          onClick={handlePlay}
-        >
-          Play
-        </button>
-        
-      </div>
     </div>
   );
 };

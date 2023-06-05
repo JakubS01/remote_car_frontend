@@ -1,8 +1,7 @@
 import "../CSS.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
+import Api from "../Api";
 
 export class User {
   constructor(name, email, password) {
@@ -18,7 +17,6 @@ const LogIn = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleNameChange = (event) => {
     setName(event.target.value);
@@ -30,15 +28,6 @@ const LogIn = () => {
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
-  };
-
-  const handleRememberMeChange = () => {
-    setRememberMe(!rememberMe);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Обработка отправки формы
   };
 
   const handleRegisterModal = () => {
@@ -67,15 +56,13 @@ const LogIn = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("password", password);
-
-    fetch("/upload", { method: "POST", body: formData })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error));
+    // uncomment for testing and production
+    //if (API.Register(name, email, password)) {
+    //
+    // }
+    // else {
+    //  alert("Error");
+    // }
 
     setName("");
     setEmail("");
@@ -84,9 +71,30 @@ const LogIn = () => {
     closeRegisterModal();
   };
 
+  const login = () => {
+    // uncomment for testing and production
+
+    //if (email === "") {
+    //  alert("Email is required");
+    //  return;
+    //}
+
+    //if (password === "") {
+    //  alert("Password is required");
+    //  return;
+    //}
+
+    // if (API.Login(email, password)) {
+    //   navigate("/choose_car", { replace: true });
+    // }
+    // else {
+    //  alert("Error");
+    // }
+    navigate("/choose_car", { replace: true });
+  };
+
   return (
     <div>
-      
       <div id="RegisterModal" class="modal">
         <div class="modal-content">
           <div class="temp">
@@ -146,18 +154,9 @@ const LogIn = () => {
       </div>
 
       <div>
-      <div class="header">
-      <div className="bar">
-        <div className="text_bar">Car stream</div>
-        <button
-            class="button"
-            style={{marginLeft: "auto", marginRight: "20px"}}
-            onClick={() => navigate("/", { replace: true })}
-          >
-            Main menu
-          </button>
-      </div>
-      </div>
+        <div class="header">
+          <h2>CAR STREAM</h2>
+        </div>
         <h1>Login or register</h1>
         <td>
           <label htmlFor="email">Email:</label>
@@ -184,20 +183,7 @@ const LogIn = () => {
           />
         </div>
         <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={handleRememberMeChange}
-            />
-            Remember me
-          </label>
-        </div>
-        <div>
-          <button
-            class="button"
-            onClick={() => navigate("/choose_car", { replace: true })}
-          >
+          <button class="button" onClick={login}>
             Sign In
           </button>
         </div>

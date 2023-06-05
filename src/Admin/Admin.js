@@ -1,6 +1,7 @@
 import "../CSS.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "./Api";
 
 export const CAR_STATUS = {
   AVAILABLE: 0,
@@ -8,42 +9,35 @@ export const CAR_STATUS = {
 };
 
 export class Car {
-  constructor(ip, name, maxCell, status, picture) {
-    this.Ip = ip;
+  constructor(id, name, url, fps, status, picture) {
+    this.Id = id;
     this.Name = name;
-    this.MaxCell = maxCell;
+    this.Url = url;
+    this.Fps = fps;
     this.Status = status;
-    this.Picture = picture;
   }
 }
 
 const Admin = () => {
-  const getCars = async () => {
-    const carsList = null;
-    fetch("/car_admin", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => (carsList = data));
-    return carsList;
-  };
-
-  const carsList = getCars();
-
-  console.log("There are cars");
-  //const [cars, setCars] = useState(carsList);
-  const [cars, setCars] = useState([
-    { Ip: "1478", Name: "Maszyna", MaxCell: "12", Status: "1" }
-  ]);
+  const [cars, setCars] = useState([]);
   const [carName, setCarName] = useState("");
-  const [carIp, setCarIp] = useState("");
-  const [carMaxCell, setCarMaxCell] = useState("");
+  const [carId, setCarId] = useState("");
+  const [carUrl, setCarUrl] = useState("");
+  const [carFps, setCarFps] = useState("");
   const [carStatus, setCarStatus] = useState(CAR_STATUS.AVAILABLE);
-  const [carPicture, setCarPicture] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const navigate = useNavigate();
 
-  const handleCarPictureChange = (event) => {
-    setCarPicture(event.target.files[0]);
+  const getCars = () => {
+    let tmp = API.GetCarsAdmin();
+    if (tmp === null) {
+      alert("Error");
+    } else {
+      setCars(tmp);
+    }
   };
+
+  useEffect(getCars, []);
 
   const handleAddCar = () => {
     var modal = document.getElementById("AddModal");
@@ -58,11 +52,11 @@ const Admin = () => {
   const handleChangeCar = (car) => {
     var modal = document.getElementById("ChangeModal");
     setSelectedCar(car);
-    setCarIp(car.Ip);
+    setCarId(car.Ip);
     setCarName(car.Name);
-    setCarMaxCell(car.MaxCell);
+    setCarUrl(car.Url);
+    setCarFps(car.Fps);
     setCarStatus(car.Status);
-    setCarPicture(car.Picture);
     modal.style.display = "block";
   };
 
@@ -71,28 +65,33 @@ const Admin = () => {
     modal.style.display = "none";
   };
 
-  const handleCarIpChange = (event) => {
-    setCarIp(event.target.value);
+  const handleCarUrlChange = (event) => {
+    setCarUrl(event.target.value);
   };
 
   const handleCarNameChange = (event) => {
     setCarName(event.target.value);
   };
 
-  const handleCarMaxCellChange = (event) => {
-    setCarMaxCell(event.target.value);
+  const handleCarFpsChange = (event) => {
+    setCarFps(event.target.value);
   };
 
   const handleCarStatusChange = (event) => {
     setCarStatus(Number(event.target.value));
   };
 
+  const handleDeleteCar = (car) => {
+    if (!API.DeleteCarAdmin(car.id)) {
+      alert("Error");
+    } else {
+      getCars();
+    }
+  };
+
   const changeCar = () => {
-    if (carIp === "") {
-      alert("Ip is required");
-      return;
-    } else if (isNaN(Number(carIp))) {
-      alert("Ip must be an integer");
+    if (carUrl === "") {
+      alert("URL is required");
       return;
     }
 
@@ -101,58 +100,31 @@ const Admin = () => {
       return;
     }
 
-    if (carMaxCell === "") {
-      alert("MaxCell is required");
+    if (carFps === "") {
+      alert("Fps is required");
       return;
-    } else if (isNaN(Number(carMaxCell))) {
-      alert("MaxCell must be an integer");
+    } else if (isNaN(Number(carFps))) {
+      alert("Fps must be an integer");
       return;
     }
 
-    setCars((cars) =>
-      cars
-        .filter((car) => car !== selectedCar)
-        .concat(
-          new Car(
-            Number(carIp),
-            carName,
-            Number(carMaxCell),
-            carStatus,
-            carPicture
-          )
-        )
-    );
+    if (!API.ChangeCarAdmin(carId, carName, carUrl)) {
+      alert("Error");
+    }
 
-    const formData = new FormData();
-    formData.append("ip", carIp);
-    formData.append("name", carName);
-    formData.append("maxCell", Number(carMaxCell));
-    formData.append("status", carStatus);
-    formData.append("file", carPicture);
+    getCars();
 
-    fetch("/car_admin", { method: "POST", body: formData })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error));
-
-    setCarIp("");
+    setCarId("");
     setCarName("");
-    setCarMaxCell("");
+    setCarFps("");
     setCarStatus("");
-    setCarPicture("");
 
     closeChangeModal();
   };
 
   const addCar = () => {
-    if (carIp === "") {
-      alert("Ip is required");
-      return;
-    } else if (cars.map((car) => car.Ip).includes(carIp)) {
-      alert("Ip must be unique");
-      return;
-    } else if (isNaN(Number(carIp))) {
-      alert("Ip must be an integer");
+    if (carUrl === "") {
+      alert("URL is required");
       return;
     }
 
@@ -161,37 +133,23 @@ const Admin = () => {
       return;
     }
 
-    if (carMaxCell === "") {
-      alert("MaxCell is required");
+    if (carFps === "") {
+      alert("Fps is required");
       return;
-    } else if (isNaN(Number(carMaxCell))) {
-      alert("MaxCell must be an integer");
+    } else if (isNaN(Number(carFps))) {
+      alert("Fps must be an integer");
       return;
     }
 
-    setCars(
-      cars.concat(
-        new Car(carIp, carName, Number(carMaxCell), carStatus, carPicture)
-      )
-    );
+    if (!API.AddCarAdmin(carName, carUrl)) {
+      alert("Error");
+    }
 
-    const formData = new FormData();
-    formData.append("ip", carIp);
-    formData.append("name", carName);
-    formData.append("maxCell", Number(carMaxCell));
-    formData.append("status", carStatus);
-    formData.append("file", carPicture);
-
-    fetch("/upload", { method: "POST", body: formData })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error));
-
-    setCarIp("");
+    getCars();
+    setCarUrl("");
     setCarName("");
-    setCarMaxCell("");
+    setCarFps("");
     setCarStatus("");
-    setCarPicture("");
 
     closeAddModal();
   };
@@ -199,18 +157,21 @@ const Admin = () => {
   return (
     <div>
       <div class="header">
+        <h2>CAR STREAM</h2>
+        <h1>Hi Admin</h1>
+      </div>
+
       <div className="bar">
         <div className="text_bar">Car stream</div>
         <button
-            class="button"
-            style={{marginLeft: "auto", marginRight: "20px"}}
-            onClick={() => navigate("/", { replace: true })}
-          >
-            Main menu
-          </button>
+          class="button"
+          style={{ marginLeft: "auto", marginRight: "20px" }}
+          onClick={() => navigate("/", { replace: true })}
+        >
+          Main menu
+        </button>
       </div>
       <h1>Hi Admin</h1>
-      </div>
 
       <div id="ChangeModal" class="modal">
         <div class="modal-content">
@@ -224,14 +185,14 @@ const Admin = () => {
             <table>
               <tr>
                 <td>
-                  <label htmlFor="changeCarIp">Ip:</label>
+                  <label htmlFor="changeCarUrl">URL:</label>
                 </td>
                 <td>
                   <input
                     type="text"
-                    id="changeCarIp"
-                    value={carIp}
-                    onChange={handleCarIpChange}
+                    id="changeCarUrl"
+                    value={carUrl}
+                    onChange={handleCarUrlChange}
                   />
                 </td>
               </tr>
@@ -250,14 +211,14 @@ const Admin = () => {
               </tr>
               <tr>
                 <td>
-                  <label htmlFor="changeCarMaxCell">MaxCell:</label>
+                  <label htmlFor="changeFps">fps:</label>
                 </td>
                 <td>
                   <input
                     type="text"
-                    id="changeCarMaxCell"
-                    value={carMaxCell}
-                    onChange={handleCarMaxCellChange}
+                    id="changeFps"
+                    value={carFps}
+                    onChange={handleCarFpsChange}
                   />
                 </td>
               </tr>
@@ -270,15 +231,6 @@ const Admin = () => {
                     <option value={CAR_STATUS.AVAILABLE}>available</option>
                     <option value={CAR_STATUS.UNAVAILABLE}>unavailable</option>
                   </select>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input
-                    id="changeFileInput"
-                    type="file"
-                    onChange={handleCarPictureChange}
-                  />
                 </td>
               </tr>
             </table>
@@ -301,14 +253,14 @@ const Admin = () => {
             <table>
               <tr>
                 <td>
-                  <label htmlFor="carIp">ip:</label>
+                  <label htmlFor="carUrl">URL:</label>
                 </td>
                 <td>
                   <input
                     type="text"
-                    id="carIp"
-                    value={carIp}
-                    onChange={handleCarIpChange}
+                    id="carUrl"
+                    value={carUrl}
+                    onChange={handleCarUrlChange}
                     required
                   />
                 </td>
@@ -329,14 +281,14 @@ const Admin = () => {
               </tr>
               <tr>
                 <td>
-                  <label htmlFor="carMaxCell">MaxCell:</label>
+                  <label htmlFor="carFps">Fps:</label>
                 </td>
                 <td>
                   <input
                     type="text"
-                    id="carMaxCell"
-                    value={carMaxCell}
-                    onChange={handleCarMaxCellChange}
+                    id="carFps"
+                    value={carFps}
+                    onChange={handleCarFpsChange}
                     required
                   />
                 </td>
@@ -352,15 +304,6 @@ const Admin = () => {
                   </select>
                 </td>
               </tr>
-              <tr>
-                <td>
-                  <input
-                    id="fileInput"
-                    type="file"
-                    onChange={handleCarPictureChange}
-                  />
-                </td>
-              </tr>
             </table>
             <button class="no-button" onClick={addCar}>
               Save
@@ -374,31 +317,25 @@ const Admin = () => {
       ) : (
         <table>
           <tr>
-            <th>Ip</th>
+            <th>URL</th>
             <th text-align="center">Name</th>
-            <th>MaxCell</th>
+            <th>Fps</th>
             <th>Status</th>
-            <th>Picture</th>
             <th>Connection</th>
           </tr>
           {cars.map((car) => (
             <tr>
-              <td>{car.Ip}</td>
+              <td>{car.Url}</td>
               <td>
                 <button class="no-button" onClick={() => handleChangeCar(car)}>
                   {car.Name}
                 </button>
               </td>
-              <td>{car.MaxCell}</td>
+              <td>{car.Fps}</td>
               <td>
                 {car.Status === CAR_STATUS.UNAVAILABLE
                   ? "Unavailable"
                   : "Available"}
-              </td>
-              <td>
-                {
-                  // <img src={car.Picture}  />
-                }
               </td>
               <td>
                 <button
@@ -406,6 +343,9 @@ const Admin = () => {
                   //onClick={() => }
                 >
                   Connect
+                </button>
+                <button class="no-button" onClick={handleDeleteCar}>
+                  Delete
                 </button>
               </td>
             </tr>
@@ -417,10 +357,6 @@ const Admin = () => {
       <div justify-content="center" align-items="center">
         <button class="button" onClick={handleAddCar}>
           Add
-        </button>
-
-        <button class="button" onClick={handleAddCar}>
-          Delete
         </button>
       </div>
     </div>
