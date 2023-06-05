@@ -1,7 +1,7 @@
 import "../CSS.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "./Api.js";
+import API from "../Api.js";
 
 export const CAR_STATUS = {
   AVAILABLE: 0,
@@ -26,8 +26,13 @@ const ChooseCar = () => {
   const [carStatus, setCarStatus] = useState(CAR_STATUS.AVAILABLE);
   const [carPicture, setCarPicture] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
+  
 
   const navigate = useNavigate();
+
+  const handlePlay = () => {
+    navigate("/Stream", { replace: true })
+  };
 
   useEffect(() => {
     let tmp = API.GetCars();

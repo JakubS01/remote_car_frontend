@@ -1,7 +1,7 @@
 import "../CSS.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "./Api";
+import API from "../Api";
 
 export const CAR_STATUS = {
   AVAILABLE: 0,
