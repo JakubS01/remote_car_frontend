@@ -1,50 +1,78 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import "./settings.css";
 
-let globalSettings = {
-    videoQuality: "high",
-    musicVolume: 50,
-    language: "english",
-  };
 
 function Settings() {
   const navigate = useNavigate();
-  const [videoQuality, setVideoQuality] = useState(globalSettings.videoQuality);
-  const [musicVolume, setMusicVolume] = useState(globalSettings.musicVolume);
-  const [language, setLanguage] = useState(globalSettings.language);
+  const [videoQuality, setVideoQuality] = useState("720p");
+  
+
+
+  useEffect(() => {
+    const storedVideoQuality = localStorage.getItem("videoQuality");
+    if (storedVideoQuality) {
+      setVideoQuality(storedVideoQuality);
+    }
+  }, []);
+
+ 
+  useEffect(() => {
+    if (videoQuality) {
+      localStorage.setItem("videoQuality", videoQuality);
+    }
+  }, [videoQuality]);
 
   const handleGearClick = () => {
     navigate("/stream", { replace: true });
   };
 
-  const handleVideoQualityChange = (e) => {
-    setVideoQuality(e.target.value);
-  };
-
-  const handleMusicVolumeChange = (e) => {
-    setMusicVolume(Number(e.target.value));
-  };
-
-  const handleLanguageChange = (e) => {
-    setLanguage(e.target.value);
-  };
-
-  const handleHelpClick = () => {
-    console.log("Ask for help");
+  const handleVideoQualityChange = (option) => {
+    setVideoQuality(option);
   };
 
   const handleConfirmClick = () => {
-    globalSettings = {
-      videoQuality,
-      musicVolume,
-      language,
-    };
+    /*
+    if (videoQuality === "720p") {
+      
+      console.log(ws)
+      if (ws) {
+          ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P720"}}))
+      }
 
-    navigate("/stream", { replace: true });
+    } else if (videoQuality === "480p") {
 
+      console.log(ws)
+      if (ws) {
+          ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P480"}}))
+
+      };
+    } else if (videoQuality === "360p") {
+      
+      console.log(ws)
+      if (ws) {
+          ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P360"}}))
+      }      console.log("Selected Video Quality: 360p");
+
+    } else if (videoQuality === "240p") {
+
+      console.log(ws)
+      if (ws) {
+          ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P240"}}))
+      }
+      
+    } else if (videoQuality === "144p") {
+
+      console.log(ws)
+      if (ws) {
+          ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P144"}}))
+      }
+
+    }
+*/
+    navigate(`/stream?videoQuality=${videoQuality}`, { replace: true });
     console.log("Confirm settings");
   };
 
@@ -65,58 +93,64 @@ function Settings() {
       </div>
       <div className="settings-content">
         <div className="settings-heading">Settings</div>
-        <ul className="settings-options">
-          <li>
-            <label htmlFor="video-quality">Video Quality:</label>
-            <div className="checkbox-options">
-              <label>
-                <input
-                  type="checkbox"
-                  name="video-quality"
-                  value="high"
-                  checked={videoQuality === "high"}
-                  onChange={handleVideoQualityChange}
-                />
-                High
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  name="video-quality"
-                  value="low"
-                  checked={videoQuality === "low"}
-                  onChange={handleVideoQualityChange}
-                />
-                Low
-              </label>
-            </div>
-          </li>
-          <li>
-            <label htmlFor="music-volume">Music:</label>
+        <div className="settings-options">
+          <div className="video-quality-label">Video Quality:</div>
+          <div className="checkbox-option">
             <input
-              type="range"
-              id="music-volume"
-              min="0"
-              max="100"
-              value={musicVolume}
-              onChange={handleMusicVolumeChange}
+              type="checkbox"
+              id="720p"
+              checked={videoQuality === "720p"}
+              onChange={() => handleVideoQualityChange("720p")}
             />
-          </li>
-          <li>
-            <label htmlFor="language">Language:</label>
-            <select id="language" value={language} onChange={handleLanguageChange}>
-              <option value="english">English</option>
-              <option value="polish">Polish</option>
-            </select>
-          </li>
-          <li>
-            <label htmlFor="Help">Help:</label>
-            <button onClick={handleHelpClick}>Ask for help</button>
-          </li>
-        </ul>
+            <label htmlFor="720p">720p</label>
+          </div>
+          <div className="checkbox-option">
+            <input
+              type="checkbox"
+              id="480p"
+              checked={videoQuality === "480p"}
+              onChange={() => handleVideoQualityChange("480p")}
+            />
+            <label htmlFor="480p">480p</label>
+          </div>
+          <div className="checkbox-option">
+            <input
+              type="checkbox"
+              id="360p"
+              checked={videoQuality === "360p"}
+              onChange={() => handleVideoQualityChange("360p")}
+            />
+            <label htmlFor="360p">360p</label>
+          </div>
+          <div className="checkbox-option">
+            <input
+              type="checkbox"
+              id="240p"
+              checked={videoQuality === "240p"}
+              onChange={() => handleVideoQualityChange("240p")}
+            />
+            <label htmlFor="240p">240p</label>
+          </div>
+          <div className="checkbox-option">
+            <input
+              type="checkbox"
+              id="144p"
+              checked={videoQuality === "144p"}
+              onChange={() => handleVideoQualityChange("144p")}
+            />
+            <label htmlFor="144p">144p</label>
+          </div>
+        </div>
         <div className="settings-buttons">
-          <button style={{backgroundColor: "#BFACE2"}} onClick={handleConfirmClick}>Apply</button>
-          <button style={{opacity: "0.75"}} onClick={handleCancelClick}>Cancel</button>
+          <button
+            style={{ backgroundColor: "#BFACE2" }}
+            onClick={handleConfirmClick}
+          >
+            Apply
+          </button>
+          <button style={{ opacity: "0.75" }} onClick={handleCancelClick}>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -124,4 +158,3 @@ function Settings() {
 }
 
 export default Settings;
-export { globalSettings };
