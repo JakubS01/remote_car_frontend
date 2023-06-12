@@ -1,7 +1,7 @@
 import "../CSS.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Api from "../Api";
+import API from "../Api";
 
 export class User {
   constructor(name, email, password) {
@@ -56,13 +56,14 @@ const LogIn = () => {
       return;
     }
 
-    // uncomment for testing and production
-    //if (API.Register(name, email, password)) {
-    //
-    // }
-    // else {
-    //  alert("Error");
-    // }
+    API.Register(name, email, password).then((success) => {
+      if (success) {
+        alert("Successfully registered");
+      }
+      else {
+        alert("Error while registration");
+      }
+    })
 
     setName("");
     setEmail("");
@@ -72,29 +73,29 @@ const LogIn = () => {
   };
 
   const login = () => {
-    // uncomment for testing and production
 
-    //if (email === "") {
-    //  alert("Email is required");
-    //  return;
-    //}
+    if (email === "") {
+      alert("Email is required");
+      return;
+    }
 
-    //if (password === "") {
-    //  alert("Password is required");
-    //  return;
-    //}
+    if (password === "") {
+      alert("Password is required");
+      return;
+    }
 
-    // if (API.Login(email, password)) {
-    //   navigate("/choose_car", { replace: true });
-    // }
-    // else {
-    //  alert("Error");
-    // }
-    navigate("/choose_car", { replace: true });
+    API.Login(email, password).then((success) => {
+      if (success) {
+        navigate("/choose_car", { replace: true });
+      }
+      else {
+        alert("Error while loggin in");
+      }
+    })
   };
 
   return (
-    <div>
+    <div id="Login">
       <div id="RegisterModal" class="modal">
         <div class="modal-content">
           <div class="temp">
@@ -153,15 +154,25 @@ const LogIn = () => {
         </div>
       </div>
 
-      <div>
-        <div class="header">
-          <h2>CAR STREAM</h2>
+      <div className="container">
+        <div class="bar">
+          <div class="text_bar">
+            <h1>CAR STREAM</h1>
+          </div>
         </div>
-        <h1>Login or register</h1>
+        <div class="content">
+          <div class="header">
+            <h2>Login or register</h2>
+          </div>
+        </div>
+      </div>
+      <div id="div">
+
+
         <td>
           <label htmlFor="email">Email:</label>
         </td>
-        <div>
+        <div >
           <input
             type="text"
             id="email"
@@ -175,7 +186,7 @@ const LogIn = () => {
         </td>
         <div>
           <input
-            type="text"
+            type="password"
             id="password"
             placeholder="Enter your password"
             value={password}
@@ -183,16 +194,10 @@ const LogIn = () => {
           />
         </div>
         <div>
-          <button class="button" onClick={login}>
-            Sign In
-          </button>
-        </div>
-        <div>
           <button
             class="button"
-            onClick={() => navigate("/admin", { replace: true })}
-          >
-            Forgot your password?
+            onClick={login}>
+            Sign In
           </button>
         </div>
         <div>

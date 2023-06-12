@@ -8,34 +8,24 @@ export const CAR_STATUS = {
   UNAVAILABLE: 1
 };
 
-export class Car {
-  constructor(id, name, url, fps, status, picture) {
-    this.Id = id;
-    this.Name = name;
-    this.Url = url;
-    this.Fps = fps;
-    this.Status = status;
-  }
-}
-
 const Admin = () => {
   const [cars, setCars] = useState([]);
   const [carName, setCarName] = useState("");
   const [carId, setCarId] = useState("");
   const [carUrl, setCarUrl] = useState("");
-  const [carFps, setCarFps] = useState("");
-  const [carStatus, setCarStatus] = useState(CAR_STATUS.AVAILABLE);
-  const [selectedCar, setSelectedCar] = useState(null);
   const navigate = useNavigate();
 
   const getCars = () => {
-    let tmp = API.GetCarsAdmin();
-    if (tmp === null) {
-      alert("Error");
-    } else {
-      setCars(tmp);
-    }
-  };
+    API.GetCarsAdmin().then((result) => {
+      if (result === null) {
+        alert("Error while downloading cars");
+      }
+      else {
+        console.log(result);
+        setCars(result);
+      }
+    })
+  }
 
   useEffect(getCars, []);
 
@@ -51,12 +41,9 @@ const Admin = () => {
 
   const handleChangeCar = (car) => {
     var modal = document.getElementById("ChangeModal");
-    setSelectedCar(car);
-    setCarId(car.Ip);
-    setCarName(car.Name);
-    setCarUrl(car.Url);
-    setCarFps(car.Fps);
-    setCarStatus(car.Status);
+    setCarId(car.id);
+    setCarName(car.name);
+    setCarUrl(car.url);
     modal.style.display = "block";
   };
 
@@ -73,20 +60,15 @@ const Admin = () => {
     setCarName(event.target.value);
   };
 
-  const handleCarFpsChange = (event) => {
-    setCarFps(event.target.value);
-  };
-
-  const handleCarStatusChange = (event) => {
-    setCarStatus(Number(event.target.value));
-  };
-
   const handleDeleteCar = (car) => {
-    if (!API.DeleteCarAdmin(car.id)) {
-      alert("Error");
-    } else {
-      getCars();
-    }
+    API.DeleteCarAdmin(car.id).then((success) => {
+      if (success) {
+        getCars();
+      }
+      else {
+        alert("Error while deleting car");
+      }
+    })
   };
 
   const changeCar = () => {
@@ -100,26 +82,18 @@ const Admin = () => {
       return;
     }
 
-    if (carFps === "") {
-      alert("Fps is required");
-      return;
-    } else if (isNaN(Number(carFps))) {
-      alert("Fps must be an integer");
-      return;
-    }
-
-    if (!API.ChangeCarAdmin(carId, carName, carUrl)) {
-      alert("Error");
-    }
-
-    getCars();
-
-    setCarId("");
-    setCarName("");
-    setCarFps("");
-    setCarStatus("");
-
-    closeChangeModal();
+    API.ChangeCarAdmin(carId, carName, carUrl).then((success) => {
+      if (success) {
+        getCars();
+        setCarId("");
+        setCarName("");
+        setCarUrl("");
+        closeChangeModal();
+      }
+      else {
+        alert("Error while changing car");
+      }
+    })
   };
 
   const addCar = () => {
@@ -133,45 +107,31 @@ const Admin = () => {
       return;
     }
 
-    if (carFps === "") {
-      alert("Fps is required");
-      return;
-    } else if (isNaN(Number(carFps))) {
-      alert("Fps must be an integer");
-      return;
-    }
-
-    if (!API.AddCarAdmin(carName, carUrl)) {
-      alert("Error");
-    }
-
-    getCars();
-    setCarUrl("");
-    setCarName("");
-    setCarFps("");
-    setCarStatus("");
-
-    closeAddModal();
+    API.AddCarAdmin(carName, carUrl).then((success) => {
+      if (success) {
+        getCars();
+        setCarUrl("");
+        setCarName("");
+        closeAddModal();
+      }
+      else {
+        alert("Error");
+      }
+    })
   };
 
   return (
     <div>
-      <div class="header">
-        <h2>CAR STREAM</h2>
-        <h1>Hi Admin</h1>
-      </div>
-
       <div className="bar">
         <div className="text_bar">Car stream</div>
         <button
           class="button"
           style={{ marginLeft: "auto", marginRight: "20px" }}
-          onClick={() => navigate("/", { replace: true })}
+          onClick={() => API.Logout(navigate)}
         >
-          Main menu
+          Logout
         </button>
       </div>
-      <h1>Hi Admin</h1>
 
       <div id="ChangeModal" class="modal">
         <div class="modal-content">
@@ -207,30 +167,6 @@ const Admin = () => {
                     value={carName}
                     onChange={handleCarNameChange}
                   />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label htmlFor="changeFps">fps:</label>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    id="changeFps"
-                    value={carFps}
-                    onChange={handleCarFpsChange}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label htmlFor="changeCarStatus">Status:</label>
-                </td>
-                <td>
-                  <select id="changeCarStatus" onChange={handleCarStatusChange}>
-                    <option value={CAR_STATUS.AVAILABLE}>available</option>
-                    <option value={CAR_STATUS.UNAVAILABLE}>unavailable</option>
-                  </select>
                 </td>
               </tr>
             </table>
@@ -279,31 +215,6 @@ const Admin = () => {
                   />
                 </td>
               </tr>
-              <tr>
-                <td>
-                  <label htmlFor="carFps">Fps:</label>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    id="carFps"
-                    value={carFps}
-                    onChange={handleCarFpsChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label htmlFor="carStatus">Status:</label>
-                </td>
-                <td>
-                  <select id="carStatus" onChange={handleCarStatusChange}>
-                    <option value={CAR_STATUS.AVAILABLE}>available</option>
-                    <option value={CAR_STATUS.UNAVAILABLE}>unavailable</option>
-                  </select>
-                </td>
-              </tr>
             </table>
             <button class="no-button" onClick={addCar}>
               Save
@@ -325,26 +236,24 @@ const Admin = () => {
           </tr>
           {cars.map((car) => (
             <tr>
-              <td>{car.Url}</td>
+              <td>{car.url}</td>
               <td>
                 <button class="no-button" onClick={() => handleChangeCar(car)}>
-                  {car.Name}
+                  {car.name}
                 </button>
               </td>
-              <td>{car.Fps}</td>
+              <td>{car.fps === null ? "Not running" : car.fps}</td>
               <td>
-                {car.Status === CAR_STATUS.UNAVAILABLE
-                  ? "Unavailable"
-                  : "Available"}
+                {car.status}
               </td>
               <td>
                 <button
                   class="no-button"
-                  //onClick={() => }
+                //onClick={() => }
                 >
                   Connect
                 </button>
-                <button class="no-button" onClick={handleDeleteCar}>
+                <button class="no-button" onClick={() => handleDeleteCar(car)}>
                   Delete
                 </button>
               </td>

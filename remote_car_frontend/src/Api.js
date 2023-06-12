@@ -1,171 +1,224 @@
-import jwt_decode from "jwt-decode";
+import jwt_decode from 'jwt-decode'
+
+const tokenName = "RENTCAR_TOKEN";
 
 class Api {
-  static AUTH_TOKEN;
-  static userID;
+  static Url = "http://localhost:8081"
+  static Auth_Url = "http://localhost/auth/realms/SpringBootKeycloak/protocol/openid-connect/token"
 
-  Login(username, password) {
+  IsLoggedIn() {
+    return localStorage.getItem(tokenName) !== null;
+  }
+
+  IsAdmin() {
+    const decodedJwt = jwt_decode(localStorage.getItem(tokenName));
+    return decodedJwt["resource_access"]["springboot-keycloak-client"]["roles"].includes("admin");
+  }
+
+  async Login(username, password) {
     const formData = new URLSearchParams();
     formData.append("client_id", "springboot-keycloak-client");
     formData.append("username", username);
     formData.append("password", password);
     formData.append("grant_type", "password");
 
-    fetch(
-      "http://localhost/auth/realms/SpringBootKeycloak/protocol/openid-connect/token",
-      {
+    try {
+      const response = await fetch(Api.Auth_Url,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData
+        }
+      )
+      if (response.status === 200) {
+        const json = await response.json();
+        localStorage.setItem(tokenName, json.access_token);
+        return true;
+      }
+      else {
+        console.log(response);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  Logout(navigate) {
+    localStorage.removeItem(tokenName);
+    navigate("/login", { replace: true });
+  }
+
+  async Register(name, email, password) {
+    try {
+      const response = await fetch(Api.Url + "/user", {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/json"
         },
-        body: formData
+        body: JSON.stringify({
+          "name": name,
+          "password": password,
+          "email": email
+        })
+      })
+      if (response.status === 200) {
+        return true;
       }
-    )
-      .then((response) => {
-        if (response.status === 200) {
-          response.json().then((json) => {
-            Api.AUTH_TOKEN = json.access_token;
-            let decodedJwt = jwt_decode(json.access_token);
-            Api.userID = decodedJwt.sub;
-          });
+      else {
+        console.log(response);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  async GetCars() {
+    try {
+      const response = await fetch(Api.Url + "/car", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Authorization": "Bearer " + localStorage.getItem(tokenName)
         }
-      })
-      .catch((error) => {
-        console.log(error);
-        return false;
       });
-    return true;
+      if (response.status === 200) {
+        return await response.json();
+      }
+      else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
-  Register(name, email, password) {
-    const formData = new URLSearchParams();
-    formData.append("name", name);
-    formData.append("password", password);
-    formData.append("email", email);
-
-    fetch("http://localhost/user", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: formData
-    })
-      .then((response) => {
-        return response.status === 200 ? true : false;
-      })
-      .catch((error) => {
-        console.log(error);
-        return false;
+  async GetCarsAdmin() {
+    try {
+      const response = await fetch(Api.Url + "/car_admin", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem(tokenName)
+        }
       });
+      if (response.status === 200) {
+        return await response.json();
+      }
+      else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
-  GetCars() {
-    // fetch("http://localhost/getcars", {
-    //   method: "GET",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + Api.AUTH_TOKEN
-    //   }
-    // })
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       response.json().then((json) => {
-    //         return json;
-    //       });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     return null;
-    //   });
-    // return null;
-    return [{ Name: "Maszyna", Fps: "12", Status: "1" }];
+  async GetCarAdmin(id) {
+    try {
+      const response = await fetch(Api.Url + `/car_admin/${id}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem(tokenName)
+        }
+      });
+      if (response.status === 200) {
+        return await response.json();
+      }
+      else {
+        console.log(response);
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
-  GetCarsAdmin() {
-    // fetch("http://localhost/car_admin", {
-    //   method: "GET",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + Api.AUTH_TOKEN
-    //   }
-    // })
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       response.json().then((json) => {
-    //         return json;
-    //       });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     return null;
-    //   });
-    // return null;
-    return [{ Ip: "1478", Name: "Maszyna", Fps: "12", Status: "1" }];
+  async AddCarAdmin(name, url) {
+    try {
+      const response = await fetch(Api.Url + "/car_admin", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem(tokenName)
+        },
+        body: JSON.stringify({
+          "name": name,
+          "url": url
+        })
+      });
+      if (response.status === 200) {
+        return true;
+      }
+      else {
+        console.log(response);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
-  AddCarAdmin(name, url) {
-    // fetch("http://localhost/car_admin", {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + Api.AUTH_TOKEN
-    //   },
-    //   body: JSON.stringify({ name: name, url: url })
-    // })
-    //   .then((response) => {
-    //     return response.status === 200 ? true : false;
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     return false;
-    //   });
-    return [{ Ip: "1478", Name: "Maszyna", Fps: "12", Status: "1" }];
+  async ChangeCarAdmin(id, name, url) {
+    try {
+      const response = await fetch(Api.Url + `/car_admin/${id}`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem(tokenName)
+        },
+        body: JSON.stringify({
+          "name": name,
+          "url": url
+        })
+      });
+      if (response.status === 200) {
+        return true;
+      }
+      else {
+        console.log(response);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
-  ChangeCarAdmin(id, name, url) {
-    // fetch(`http://localhost/car_admin/${id}`, {
-    //   method: "PUT",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + Api.AUTH_TOKEN
-    //   },
-    //   body: JSON.stringify({ name: name, url: url })
-    // })
-    //   .then((response) => {
-    //     return response.status === 200 ? true : false;
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     return false;
-    //   });
-    return true;
-  }
-
-  DeleteCarAdmin(id) {
-    // fetch(`http://localhost/car_admin/${id}`, {
-    //   method: "DELETE",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + Api.AUTH_TOKEN
-    //   }
-    // })
-    //   .then((response) => {
-    //     return response.status === 200 ? true : false;
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     return false;
-    //   });
-    return true;
+  async DeleteCarAdmin(id) {
+    try {
+      const response = await fetch(Api.Url + `/car_admin/${id}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem(tokenName)
+        }
+      });
+      if (response.status === 200) {
+        return true;
+      }
+      else {
+        console.log(response);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 }
 
