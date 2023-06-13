@@ -59,18 +59,21 @@ const ChooseCar = () => {
                         <th>Status</th>
                     </tr>
                     {cars.map((car) => (
-                        <tr>
-                            <td>
-                                <button class="button" onClick={() => handlePlay(car.id)}>
-                                    {car.carName}
-                                </button>
-                            </td>
-                            <td>
-                                {car.isCarRunning && car.isCarFree
-                                    ? "Unavailable"
-                                    : "Available"}
-                            </td>
-                        </tr>
+                        <>
+                            {car.isCarRunning &&
+                                <tr>
+                                    <td>
+                                        <button class="button" onClick={() => handlePlay(car.id)}>
+                                            {car.carName}
+                                        </button>
+                                    </td>
+                                    <td>
+                                        {car.isCarFree
+                                            ? "Unavailable"
+                                            : "Available"}
+                                    </td>
+                                </tr>}
+                        </>
                     ))}
                 </table>
             )}

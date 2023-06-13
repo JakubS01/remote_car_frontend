@@ -114,7 +114,11 @@ function Stream() {
         }
         let a = JSON.stringify({type: "CONFIG_MESSAGE", data: {size: quality}})
         console.log(a)
-        ws && ws.send(a)
+        try {
+            ws.send(a)
+        } catch (e) {
+
+        }
     }, [videoQuality]);
 
     useEffect(() => {
