@@ -5,6 +5,7 @@ import ArrowController from "./ArrowController/ArrowController";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
 import Api from "../Api";
+import Settings from "./Settings/Settings";
 
 function Stream() {
     const navigate = useNavigate();
@@ -28,8 +29,12 @@ function Stream() {
     const [AUTH_TOKEN, setAUTH_TOKEN] = useState("")
 
     const queryParams = new URLSearchParams(location.search);
-    const [videoQuality, setVideoQuality] = useState(queryParams.get("videoQuality"));
+
+    const [videoQuality, setVideoQuality] = useState("720p");
+
     const [prevVideoQuality, setPrevVideoQuality] = useState("");
+
+    const [showSettingsScreen, setShowSettingsScreen] = useState(false);
 
 
     useEffect(() => {
@@ -86,51 +91,31 @@ function Stream() {
     }, [])
 
     useEffect(() => {
-        if (prevVideoQuality !== videoQuality) {
-            console.log("Wartość videoQuality została zmieniona:", videoQuality);
-
-            if (videoQuality === "720p" || videoQuality === null) {
-
-                console.log(ws)
-                if (ws) {
-                    //ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P720"}}))
-                }
-
-            } else if (videoQuality === "480p") {
-
-                console.log(ws)
-                if (ws) {
-                    //ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P480"}}))
-
-                }
-                ;
-            } else if (videoQuality === "360p") {
-
-                console.log(ws)
-                if (ws) {
-                    //ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P360"}}))
-                }
-
-            } else if (videoQuality === "240p") {
-
-                console.log(ws)
-                if (ws) {
-                    //ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P240"}}))
-                }
-
-            } else if (videoQuality === "144p") {
-
-                console.log(ws)
-                if (ws) {
-                    //ws.send(JSON.stringify({type: "CONFIG_MESSAGE", data: {size: "P144"}}))
-                }
-
-            }
-
-            setPrevVideoQuality(videoQuality);
+        let quality = ""
+        switch (videoQuality) {
+            case "720p":
+                quality = "P720"
+                break
+            case "480p":
+                quality = "P480"
+                break
+            case "360p":
+                quality = "P360"
+                break
+            case "240p":
+                quality = "P240"
+                break
+            case "144p":
+                quality = "P144"
+                break
+            default :
+                quality = "P720"
+                break
         }
-
-    }, [videoQuality, prevVideoQuality]);
+        let a = JSON.stringify({type: "CONFIG_MESSAGE", data: {size: quality}})
+        console.log(a)
+        ws && ws.send(a)
+    }, [videoQuality]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -155,7 +140,8 @@ function Stream() {
 
 
     const handleGearClick = () => {
-        navigate("/settings", {replace: true});
+        // navigate("/settings", {replace: true});
+        setShowSettingsScreen(true)
     };
 
     const handleDisconnectClick = () => {
@@ -178,82 +164,64 @@ function Stream() {
         })
     }
 
-    const handleTakeSteeringClick = () => {
-        if (ws) {
-            console.log(session)
-            fetch("http://localhost/api/car/take_control/1", {
-                "method": "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + AUTH_TOKEN
-                },
-                body: JSON.stringify({
-                    "websocketId": session
-                })
-            }).then(response => {
-
-                console.log(response.status)
-
-            }).catch(e => {
-                console.log(e)
-            })
-        }
-        console.log("Take Steering");
-    };
-
     return (
-        <div className="Stream">
-            <div className="bar">
-                <div className="text_bar">Car stream</div>
-                <div className="text_bar" style={{marginLeft: "20px", fontSize: "1.9em"}}>
-                    {obj && <div>Left time: {obj.lefTime / 1000}</div>}
-                    {obj && <div>Rent by you:
-                        {obj.userRentId === userId && obj.lefTime > 0 ? "true" : "false"}</div>}
-                    {obj && <div>Steering by you:
-                        {obj.sessionSteeringId === session && obj.lefTime > 0 ? "true" : "false"}</div>}
-                </div>
-                <div className="button-container">
-                    {obj.lefTime === 0 && <button
-                        class="button"
-                        style={{marginRight: "15px", opacity: "0.75"}}
-                        onClick={() => rentCar(id)}
-                    >
-                        Take control
-                    </button>}
-                    {obj.lefTime !== 0 && obj.userRentId === userId && obj.sessionSteeringId !== session && <button
-                        class="button"
-                        style={{marginRight: "15px", opacity: "0.75"}}
-                        onClick={() => takeCarSteering(id)}
-                    >
-                        Take steering
-                    </button>}
-                    <button
-                        class="button"
-                        style={{opacity: "0.75"}}
-                        onClick={handleDisconnectClick}
-                    >
-                        Disconnect
-                    </button>
-                </div>
-                <FontAwesomeIcon
-                    icon={faCog}
-                    className="gear-icon"
-                    onClick={handleGearClick}
-                />
-            </div>
-            <div>
-                <img className="background-image" src={`data:image/jpeg;base64,${image}`} alt=""/>
-                <ArrowController
-                    onUpClick={() => setHorizontalSpeed(1)}
-                    onDownClick={() => setHorizontalSpeed(-1)}
-                    onLeftClick={() => setVerticalSpeed(-1)}
-                    onRightClick={() => setVerticalSpeed(1)}
-                    onUpDownRelease={() => setHorizontalSpeed(0)}
-                    onLeftRightRelease={() => setVerticalSpeed(0)}
-                />
-            </div>
-        </div>
+        <>
+            {!showSettingsScreen ?
+                <div className="Stream">
+                    <div className="bar">
+                        <div className="text_bar">Car stream</div>
+                        <div className="text_bar" style={{marginLeft: "20px", fontSize: "1.9em"}}>
+                            {obj && <div>Left time: {obj.lefTime / 1000}</div>}
+                            {obj && <div>Rent by you:
+                                {obj.userRentId === userId && obj.lefTime > 0 ? "true" : "false"}</div>}
+                            {obj && <div>Steering by you:
+                                {obj.sessionSteeringId === session && obj.lefTime > 0 ? "true" : "false"}</div>}
+                        </div>
+                        <div className="button-container">
+                            {obj.lefTime === 0 && <button
+                                class="button"
+                                style={{marginRight: "15px", opacity: "0.75"}}
+                                onClick={() => rentCar(id)}
+                            >
+                                Take control
+                            </button>}
+                            {obj.lefTime !== 0 && obj.userRentId === userId && obj.sessionSteeringId !== session &&
+                                <button
+                                    class="button"
+                                    style={{marginRight: "15px", opacity: "0.75"}}
+                                    onClick={() => takeCarSteering(id)}
+                                >
+                                    Take steering
+                                </button>}
+                            <button
+                                class="button"
+                                style={{opacity: "0.75"}}
+                                onClick={handleDisconnectClick}
+                            >
+                                Disconnect
+                            </button>
+                        </div>
+                        <FontAwesomeIcon
+                            icon={faCog}
+                            className="gear-icon"
+                            onClick={handleGearClick}
+                        />
+                    </div>
+                    <div>
+                        <img className="background-image" src={`data:image/jpeg;base64,${image}`} alt=""/>
+                        <ArrowController
+                            onUpClick={() => setHorizontalSpeed(1)}
+                            onDownClick={() => setHorizontalSpeed(-1)}
+                            onLeftClick={() => setVerticalSpeed(-1)}
+                            onRightClick={() => setVerticalSpeed(1)}
+                            onUpDownRelease={() => setHorizontalSpeed(0)}
+                            onLeftRightRelease={() => setVerticalSpeed(0)}
+                        />
+                    </div>
+                </div> :
+                <Settings videoQuality={videoQuality} setVideoQuality={setVideoQuality}
+                          setView={setShowSettingsScreen}/>
+            }</>
     );
 }
 
