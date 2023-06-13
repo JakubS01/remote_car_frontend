@@ -42,7 +42,7 @@ function App() {
             </ProtectedRoute>
           } />
         <Route
-          path="/stream"
+          path="/stream/:id"
           element={
             <ProtectedRoute protected_route={true} admin_route={false}>
               <Stream />
