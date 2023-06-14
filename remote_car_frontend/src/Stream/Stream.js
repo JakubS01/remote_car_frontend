@@ -174,7 +174,7 @@ function Stream() {
                 <div className="Stream">
                     <div className="bar">
                         <div className="text_bar">Car stream</div>
-                        <div className="text_bar" style={{marginLeft: "20px", fontSize: "1.9em"}}>
+                        <div className="text_bar" style={{marginLeft: "20px", fontSize: "1.5em"}}>
                             {obj && <div>Left time: {obj.lefTime / 1000}</div>}
                             {obj && <div>Rent by you:
                                 {obj.userRentId === userId && obj.lefTime > 0 ? "true" : "false"}</div>}
