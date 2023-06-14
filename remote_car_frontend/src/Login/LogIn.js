@@ -157,7 +157,7 @@ const LogIn = () => {
       <div className="container">
         <div class="bar">
           <div class="text_bar">
-            <h1>CAR STREAM</h1>
+            Car stream
           </div>
         </div>
         <div class="content">
