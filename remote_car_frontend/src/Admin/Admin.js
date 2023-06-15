@@ -177,7 +177,7 @@ const Admin = () => {
                                 <tr>
                                     <td>{car.url}</td>
                                     <td>
-                                        <button class="no-button" onClick={() => handleChangeCar(car)}>
+                                        <button class="button" onClick={() => handleChangeCar(car)}>
                                             {car.name}
                                         </button>
                                     </td>

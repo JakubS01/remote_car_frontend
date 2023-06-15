@@ -88,7 +88,7 @@ const ChooseCar = () => {
                                     {car.isCarRunning &&
                                         <tr>
                                             <td>
-                                                <button class="modal-button" onClick={() => handlePlay(car.id)}>
+                                                <button class="button" onClick={() => handlePlay(car.id)}>
                                                     {car.carName}
                                                 </button>
                                             </td>
