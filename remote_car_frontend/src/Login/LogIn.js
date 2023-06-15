@@ -18,6 +18,14 @@ const LogIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // const handleKeyPress = (event) => {
+  //   if (event.key === "Enter") {
+  //     var button = document.getElementById("login");
+  //     button.click();
+  //   }
+  // };
+  // document.addEventListener('keypress', handleKeyPress);
+
   const handleNameChange = (event) => {
     setName(event.target.value);
   };
@@ -31,13 +39,17 @@ const LogIn = () => {
   };
 
   const handleRegisterModal = () => {
-    var modal = document.getElementById("RegisterModal");
+    var modal = document.getElementById("registerModal");
     modal.style.display = "block";
+    var content = document.getElementById("content");
+    content.style.display = "none";
   };
 
   const closeRegisterModal = () => {
-    var modal = document.getElementById("RegisterModal");
+    var modal = document.getElementById("registerModal");
     modal.style.display = "none";
+    var content = document.getElementById("content");
+    content.style.display = "flex";
   };
 
   const addUser = () => {
@@ -95,84 +107,18 @@ const LogIn = () => {
   };
 
   return (
-    <div id="Login">
-      <div id="RegisterModal" class="modal">
-        <div class="modal-content">
-          <div class="temp">
-            <h2 class="modal-header">Registration</h2>
-            <span class="close" onClick={closeRegisterModal}>
-              &times;
-            </span>
-          </div>
-          <div>
-            <table>
-              <tr>
-                <td>
-                  <label htmlFor="Name">Name:</label>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    id="Name"
-                    value={name}
-                    onChange={handleNameChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label htmlFor="email">Email:</label>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    id="email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label htmlFor="email">Password:</label>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    id="password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    required
-                  />
-                </td>
-              </tr>
-            </table>
-            <button onClick={addUser}>Save</button>
-          </div>
+    <div class="main">
+      <div class="bar">
+        <div class="text_bar">
+          Car stream
         </div>
       </div>
-
-      <div className="container">
-        <div class="bar">
-          <div class="text_bar">
-            Car stream
-          </div>
+      <div id="content" class="content">
+        <div class="header">
+          Login or register
         </div>
-        <div class="content">
-          <div class="header">
-            <h2>Login or register</h2>
-          </div>
-        </div>
-      </div>
-      <div id="div">
-
-
-        <td>
+        <div class="body">
           <label htmlFor="email">Email:</label>
-        </td>
-        <div >
           <input
             type="text"
             id="email"
@@ -180,11 +126,7 @@ const LogIn = () => {
             value={email}
             onChange={handleEmailChange}
           />
-        </div>
-        <td>
           <label htmlFor="password">Password:</label>
-        </td>
-        <div>
           <input
             type="password"
             id="password"
@@ -192,18 +134,54 @@ const LogIn = () => {
             value={password}
             onChange={handlePasswordChange}
           />
+          <div>
+            <button
+              id="login"
+              class="button"
+              onClick={login}>
+              Sign In
+            </button>
+            <button class="button" onClick={handleRegisterModal}>
+              Create account
+            </button>
+          </div>
         </div>
-        <div>
-          <button
-            class="button"
-            onClick={login}>
-            Sign In
-          </button>
-        </div>
-        <div>
-          <button class="button" onClick={handleRegisterModal}>
-            Create account
-          </button>
+      </div>
+      <div id="registerModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>Registration</div>
+            <span class="modal-close" onClick={closeRegisterModal}>
+              &times;
+            </span>
+          </div>
+          <div class="body">
+            <label htmlFor="name">Name:</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={handleNameChange}
+              required
+            />
+            <label htmlFor="email">Email:</label>
+            <input
+              type="text"
+              id="email"
+              value={email}
+              onChange={handleEmailChange}
+              required
+            />
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={handlePasswordChange}
+              required
+            />
+            <button class="modal-button" onClick={addUser}>Register</button>
+          </div>
         </div>
       </div>
     </div>

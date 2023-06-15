@@ -1,6 +1,6 @@
 import "../CSS.css";
-import {useState, useEffect} from "react";
-import {useNavigate} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../Api";
 
 export const CAR_STATUS = {
@@ -16,12 +16,10 @@ const Admin = () => {
     const navigate = useNavigate();
 
     const getCars = () => {
-        console.log("???")
         API.GetCarsAdmin().then((result) => {
             if (result === null) {
                 alert("Error while downloading cars");
             } else {
-                console.log(result);
                 setCars(result);
             }
         })
@@ -51,26 +49,34 @@ const Admin = () => {
     useEffect(getCars, []);
 
     const handleAddCar = () => {
-        var modal = document.getElementById("AddModal");
+        var modal = document.getElementById("addModal");
         modal.style.display = "block";
+        var content = document.getElementById("content");
+        content.style.display = "none";
     };
 
     const closeAddModal = () => {
-        var modal = document.getElementById("AddModal");
+        var modal = document.getElementById("addModal");
         modal.style.display = "none";
+        var content = document.getElementById("content");
+        content.style.display = "flex";
     };
 
     const handleChangeCar = (car) => {
-        var modal = document.getElementById("ChangeModal");
+        var modal = document.getElementById("changeModal");
+        modal.style.display = "block";
+        var content = document.getElementById("content");
+        content.style.display = "none";
         setCarId(car.id);
         setCarName(car.name);
         setCarUrl(car.url);
-        modal.style.display = "block";
     };
 
     const closeChangeModal = () => {
-        var modal = document.getElementById("ChangeModal");
+        var modal = document.getElementById("changeModal");
         modal.style.display = "none";
+        var content = document.getElementById("content");
+        content.style.display = "flex";
     };
 
     const handleCarUrlChange = (event) => {
@@ -139,156 +145,129 @@ const Admin = () => {
     };
 
     return (
-        <div>
-            <div className="bar">
-                <div className="text_bar">Car stream</div>
+        <div class="main">
+            <div class="bar">
+                <div class="text_bar">
+                    Car stream
+                </div>
                 <button
                     class="button"
-                    style={{marginLeft: "auto", marginRight: "20px"}}
                     onClick={() => API.Logout(navigate)}
                 >
-                    Logout
+                    Log out
                 </button>
             </div>
-
-            <div id="ChangeModal" class="modal">
-                <div class="modal-content">
-                    <div class="temp">
-                        <h2 class="modal-header">Change car</h2>
-                        <span class="close" onClick={closeChangeModal}>
-              &times;
-            </span>
-                    </div>
-                    <div>
+            <div id="content" class="content">
+                <div class="header">
+                    Admin
+                </div>
+                <div class="body">
+                    {cars.length === 0 ? (
+                        "There are no cars"
+                    ) : (
                         <table>
                             <tr>
-                                <td>
-                                    <label htmlFor="changeCarUrl">URL:</label>
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        id="changeCarUrl"
-                                        value={carUrl}
-                                        onChange={handleCarUrlChange}
-                                    />
-                                </td>
+                                <th>URL</th>
+                                <th text-align="center">Name</th>
+                                <th>Fps</th>
+                                <th>Status</th>
+                                <th>Connection</th>
                             </tr>
-                            <tr>
-                                <td>
-                                    <label htmlFor="changeCarName">Name:</label>
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        id="changeCarName"
-                                        value={carName}
-                                        onChange={handleCarNameChange}
-                                    />
-                                </td>
-                            </tr>
+                            {cars.map((car) => (
+                                <tr>
+                                    <td>{car.url}</td>
+                                    <td>
+                                        <button class="no-button" onClick={() => handleChangeCar(car)}>
+                                            {car.name}
+                                        </button>
+                                    </td>
+                                    <td>{car.fps === null ? "Not running" : car.fps}</td>
+                                    <td>
+                                        {car.status}
+                                    </td>
+                                    <td>
+                                        <button
+                                            class="button"
+                                            onClick={() => {
+                                                car.status !== "CONNECTED" ?
+                                                    startCar(car.id) :
+                                                    stopCar(car.id)
+                                            }}
+                                        >
+                                            {car.status !== "CONNECTED" ? "Connect" : "Disconnect"}
+                                        </button>
+                                        <button class="button" onClick={() => handleDeleteCar(car)}>
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                         </table>
-                        <button class="no-button" onClick={changeCar}>
+                    )}
+                    <br />
+                    <button class="button" onClick={handleAddCar}>
+                        Add new car
+                    </button>
+                </div>
+            </div>
+            <div id="changeModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>Change car</div>
+                        <span class="modal-close" onClick={closeChangeModal}>
+                            &times;
+                        </span>
+                    </div>
+                    <div class="body">
+                        <label htmlFor="url">URL:</label>
+                        <input
+                            type="text"
+                            id="url"
+                            value={carUrl}
+                            onChange={handleCarUrlChange}
+                            required
+                        />
+                        <label htmlFor="changeCarName">Name:</label>
+                        <input
+                            type="text"
+                            id="changeCarName"
+                            value={carName}
+                            onChange={handleCarNameChange}
+                        />
+                        <button class="modal-button" onClick={changeCar}>
                             Save
                         </button>
                     </div>
                 </div>
             </div>
-
-            <div id="AddModal" class="modal">
+            <div id="addModal" class="modal">
                 <div class="modal-content">
-                    <div class="temp">
-                        <h2 class="modal-header">Add new car</h2>
-                        <span class="close" onClick={closeAddModal}>
-              &times;
-            </span>
+                    <div class="modal-header">
+                        <div>Add new car</div>
+                        <span class="modal-close" onClick={closeAddModal}>&times;</span>
                     </div>
-                    <div>
-                        <table>
-                            <tr>
-                                <td>
-                                    <label htmlFor="carUrl">URL:</label>
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        id="carUrl"
-                                        value={carUrl}
-                                        onChange={handleCarUrlChange}
-                                        required
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label htmlFor="carName">Name:</label>
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        id="carName"
-                                        value={carName}
-                                        onChange={handleCarNameChange}
-                                        required
-                                    />
-                                </td>
-                            </tr>
-                        </table>
-                        <button class="no-button" onClick={addCar}>
-                            Save
+                    <div class="body">
+                        <label htmlFor="carUrl">URL:</label>
+                        <input
+                            type="text"
+                            id="carUrl"
+                            value={carUrl}
+                            onChange={handleCarUrlChange}
+                            required
+                        />
+                        <label htmlFor="carName">Name:</label>
+                        <input
+                            type="text"
+                            id="carName"
+                            value={carName}
+                            onChange={handleCarNameChange}
+                            required
+                        />
+                        <button class="modal-button" onClick={addCar}>
+                            Add
                         </button>
                     </div>
                 </div>
-            </div>
-
-            {cars.length === 0 ? (
-                "There are no cars"
-            ) : (
-                <table>
-                    <tr>
-                        <th>URL</th>
-                        <th text-align="center">Name</th>
-                        <th>Fps</th>
-                        <th>Status</th>
-                        <th>Connection</th>
-                    </tr>
-                    {cars.map((car) => (
-                        <tr>
-                            <td>{car.url}</td>
-                            <td>
-                                <button class="no-button" onClick={() => handleChangeCar(car)}>
-                                    {car.name}
-                                </button>
-                            </td>
-                            <td>{car.fps === null ? "Not running" : car.fps}</td>
-                            <td>
-                                {car.status}
-                            </td>
-                            <td>
-                                <button
-                                    class="no-button"
-                                    onClick={() => {
-                                        car.status !== "CONNECTED" ?
-                                            startCar(car.id) :
-                                            stopCar(car.id)
-                                    }}
-                                >
-                                    {car.status !== "CONNECTED" ? "Connect" : "Disconnect"}
-                                </button>
-                                <button class="no-button" onClick={() => handleDeleteCar(car)}>
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </table>
-            )}
-
-            <br/>
-            <div justify-content="center" align-items="center">
-                <button class="button" onClick={handleAddCar}>
-                    Add
-                </button>
             </div>
         </div>
     );
